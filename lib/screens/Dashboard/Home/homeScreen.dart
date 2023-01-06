@@ -111,7 +111,7 @@ class HomeScreen extends StatelessWidget {
                     HapticFeedback.vibrate();
                   },
                   leading: CircleAvatar(
-                    child: buildCachedNetworkImage(
+                    backgroundImage: buildCachedNetworkImageProvider(
                         imageUrl: channel.channelLogo ?? ''),
                   ),
                   title: b1Text(channel.channelName ?? ''),
@@ -170,6 +170,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       SizedBox(
                         height: 200,
+                        width: double.maxFinite,
                         child: buildCachedNetworkImage(
                           imageUrl: video.thumbnail ?? '',
                         ),
@@ -211,7 +212,7 @@ class HomeScreen extends StatelessWidget {
                         },
                         child: CircleAvatar(
                           radius: 25,
-                          child: buildCachedNetworkImage(
+                          backgroundImage: buildCachedNetworkImageProvider(
                               imageUrl: video.channelLogo ?? ''),
                         ),
                       ),
@@ -307,17 +308,18 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 1,
-                  child: SizedBox(
+                  child: Container(
+                    padding:  EdgeInsets.all(lessPadding),
                     height: Get.height / 6,
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(lessRadius),
+                      borderRadius: BorderRadius.circular(mediumRadius),
                       child: buildCachedNetworkImage(
                           imageUrl: music.thumbnail ?? ""),
                     ),
                   ),
                 ),
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -459,6 +461,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       SizedBox(
                         height: 200,
+                        width: double.maxFinite,
                         child: buildCachedNetworkImage(
                           imageUrl: video.thumbnail ?? '',
                         ),
@@ -500,7 +503,7 @@ class HomeScreen extends StatelessWidget {
                         },
                         child: CircleAvatar(
                           radius: 25,
-                          child: buildCachedNetworkImage(
+                          backgroundImage: buildCachedNetworkImageProvider(
                               imageUrl: video.channelLogo ?? ''),
                         ),
                       ),
@@ -596,22 +599,22 @@ class HomeScreen extends StatelessWidget {
   }
 
   TabBar buildTabBar() {
-    return const TabBar(
+    return  TabBar(
       tabs: [
         Tab(
-          child: Text('Sub'),
+          child: Text('Sub',style: TextStyle(color: Theme.of(Get.context!).textTheme.headline6!.color),),
         ),
         Tab(
-          child: Text('For You'),
+          child: Text('For You',style: TextStyle(color: Theme.of(Get.context!).textTheme.headline6!.color),),
         ),
         Tab(
-          child: Text('Music'),
+          child: Text('Music',style: TextStyle(color: Theme.of(Get.context!).textTheme.headline6!.color),),
         ),
         Tab(
-          child: Text('Trending'),
+          child: Text('Trending',style: TextStyle(color: Theme.of(Get.context!).textTheme.headline6!.color),),
         ),
         Tab(
-          child: Text('Channels'),
+          child: Text('Channels',style: TextStyle(color: Theme.of(Get.context!).textTheme.headline6!.color),),
         ),
       ],
     );

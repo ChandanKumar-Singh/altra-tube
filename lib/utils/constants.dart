@@ -16,5 +16,5 @@ double maxPadding=15;
 
 ///TextColors
 Color? textColor=Theme.of(Get.context!).textTheme.bodyText1!.color;
-Color? capColor=Theme.of(Get.context!).textTheme.caption!.color;
+Color? capColor=Theme.of(Get.context!).textTheme.bodyText2!.color;
 Color? bgColor=Theme.of(Get.context!).backgroundColor;

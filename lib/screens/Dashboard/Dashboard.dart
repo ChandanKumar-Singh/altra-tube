@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import 'Me/me.dart';
+
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
@@ -31,7 +33,9 @@ class _DashboardState extends State<Dashboard>
       return Scaffold(
         body: dsp.homeBottomIndex == 0
             ? const HomeScreen()
-            : MyFiles(),
+            : dsp.homeBottomIndex == 1
+            ? const MyFiles()
+            : Me(),
         bottomNavigationBar: buildBottomNavigationBar(dsp),
       );
     });

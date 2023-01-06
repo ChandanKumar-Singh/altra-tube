@@ -9,10 +9,25 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 
-class MyFiles extends StatelessWidget {
+class MyFiles extends StatefulWidget {
   const MyFiles({
     Key? key,
   }) : super(key: key);
+
+  @override
+  State<MyFiles> createState() => _MyFilesState();
+}
+
+class _MyFilesState extends State<MyFiles> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    var dsp = Provider.of<DashboardProvider>(context, listen: false);
+    dsp.getPaths();
+    dsp.getDeviceSongs();
+    // dsp.getDeviceVideos();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,56 +42,13 @@ class MyFiles extends StatelessWidget {
                   length: 3,
                   child: Column(
                     children: [
-                      TabBar(
-                        tabs: [
-                          Tab(
-                            child: b1Text('Download'),
-                          ),
-                          Tab(
-                            child: b1Text('Music'),
-                          ),
-                          Tab(
-                            child: b1Text('Video'),
-                          ),
-                        ],
-                      ),
+                      buildTabBar(),
                       Expanded(
                         child: TabBarView(
                           children: [
-                            ListView(
-                              children: [
-                                ...dsp.downloadedList.entries.map(
-                                  (item) {
-                                    var downloads = item.value;
-                                    return Column(
-                                      children: [
-                                        ...downloads.map((downloadItem) {
-                                          debugPrint(downloadItem.type);
-                                          if (downloadItem.type == 'app') {
-                                            var download =
-                                                downloadItem as AppAdModel;
-                                            return buildAppAdTile(download);
-                                          } else if (downloadItem.type ==
-                                              'game') {
-                                            var download =
-                                                downloadItem as GameAdModel;
-                                            return buildDownloadGameTile(
-                                                download);
-                                          } else {
-                                            var download = downloadItem
-                                                as DownloadedFileModel;
-                                            return buildDownloadFilesTile(
-                                                download);
-                                          }
-                                        }),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                            Container(),
-                            Container(),
+                            buildDownloadTab(dsp),
+                            buildMusicTab(dsp),
+                            buildVideoTab(dsp),
                           ],
                         ),
                       ),
@@ -91,10 +63,268 @@ class MyFiles extends StatelessWidget {
     });
   }
 
+  ListView buildVideoTab(DashboardProvider dsp) {
+    return ListView(
+      children: [
+        if(dsp.isLoadingVideos)
+          Container(
+            height: 30,
+            width: double.maxFinite,
+            color: Colors.tealAccent.withOpacity(0.7),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                capText('Loading...'),
+                cusWidth10(),
+                const SizedBox(
+                  height: 15,
+                  width: 15,
+                  child: CircularProgressIndicator(strokeWidth: 2,color: Colors.pink),
+                ),
+              ],
+            ),
+          ),
+        Container(
+          height: 70,
+          width: double.maxFinite,
+          color: Colors.grey,
+        ),
+        SizedBox(height: lessPadding),
+        ...dsp.deviceVideos3.map((video) {
+          return Column(
+            children: [
+              GestureDetector(
+                onTap:()async{
+                  HapticFeedback.vibrate();
+                },
+                child: Row(
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(
+                              left: lessPadding, top: lessPadding),
+                          width: Get.width / 4,
+                          height: 80,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(lessPadding),
+                            child: Image.memory(
+                              video.thumnail!,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 5,
+                          right: 5,
+                          child: b1Text(video.duration.toString()),
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: mediumPadding),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          b1Text(video.title ?? '',
+                              maxLine: 2, overflow: TextOverflow.ellipsis),
+                          SizedBox(height: lessPadding),
+                          Builder(
+                            builder: (context) {
+                              return Row(
+                                children: [
+                                  capText(video.size.toString() ?? ""),
+                                  SizedBox(width: mediumPadding),
+                                  Container(
+                                      height: 10, color: textColor, width: 1),
+                                  SizedBox(width: mediumPadding),
+                                  // capText(video.extension != null
+                                  //     ? video.extension!.toUpperCase()
+                                  //     : ''),
+                                  SizedBox(width: mediumPadding),
+                                  // Container(
+                                  //     height: 10,
+                                  //     color: textColor,
+                                  //     width: 1),
+                                  // SizedBox(width: mediumPadding),
+                                  // capText(download.quality != null
+                                  //     ? download.quality!.toUpperCase()
+                                  //     : ''),
+                                ],
+                              );
+                            },
+                          ),
+                          SizedBox(height: mediumPadding),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () async {
+                        HapticFeedback.vibrate();
+                      },
+                      icon: const Icon(Icons.more_vert, size: 15),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: lessPadding),
+            ],
+          );
+        }),
+      ],
+    );
+  }
+
+  ListView buildMusicTab(DashboardProvider dsp) {
+    return ListView(
+      children: [
+        if(dsp.isLoadingSongs)
+        Container(
+          height: 30,
+          width: double.maxFinite,
+          color: Colors.tealAccent.withOpacity(0.7),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              capText('Loading...'),
+              cusWidth10(),
+              const SizedBox(
+                height: 15,
+                width: 15,
+                child: CircularProgressIndicator(strokeWidth: 2,color: Colors.pink),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          height: 70,
+          width: double.maxFinite,
+          color: Colors.grey,
+        ),
+        SizedBox(height: lessPadding),
+        TextButton(
+          style: TextButton.styleFrom(),
+          // width: double.maxFinite,
+          // color: Colors.grey,
+          // padding: EdgeInsets.all(5),
+          onPressed: () {
+            HapticFeedback.vibrate();
+          },
+          child: Row(
+            children: [
+              Container(
+                height: 25,
+                width: 25,
+                decoration: const BoxDecoration(
+                    color: Colors.yellow, shape: BoxShape.circle),
+                child: const Icon(
+                  Icons.play_arrow_rounded,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(width: mediumPadding),
+              b1Text('Play All'),
+            ],
+          ),
+        ),
+        ...dsp.deviceSongs.map((music) {
+          return ListTile(
+            onTap: () async {
+              HapticFeedback.vibrate();
+            },
+            title: b1Text(music.title, maxLine: 1, fontWeight: FontWeight.bold),
+            subtitle: Row(
+              children: [
+                capText("${((music.size / 1024) / 1024).toStringAsFixed(2)}Mb"),
+                SizedBox(width: mediumPadding),
+                if (music.artist != null)
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(height: 10, width: 1, color: textColor),
+                        SizedBox(width: mediumPadding),
+                        Expanded(
+                            child: capText(music.artist!,
+                                maxLine: 1, overflow: TextOverflow.ellipsis))
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+            trailing: IconButton(
+              onPressed: () async {
+                HapticFeedback.vibrate();
+              },
+              icon: Icon(
+                Icons.more_vert,
+                color: capColor,
+                size: 15,
+              ),
+            ),
+          );
+        })
+      ],
+    );
+  }
+
+  ListView buildDownloadTab(DashboardProvider dsp) {
+    return ListView(
+      children: [
+        if(dsp.isLoadingVideos)
+          Container(
+            height: 30,
+            width: double.maxFinite,
+            color: Colors.tealAccent.withOpacity(0.7),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                capText('Loading...'),
+                cusWidth10(),
+                const SizedBox(
+                  height: 15,
+                  width: 15,
+                  child: CircularProgressIndicator(strokeWidth: 2,color: Colors.pink),
+                ),
+              ],
+            ),
+          ),
+        Container(
+          height: 70,
+          width: double.maxFinite,
+          color: Colors.grey,
+        ),
+        SizedBox(height: lessPadding),
+        ...dsp.downloadedList.entries.map(
+          (item) {
+            var downloads = item.value;
+            return Column(
+              children: [
+                ...downloads.map((downloadItem) {
+                  // debugPrint(downloadItem.type);
+                  if (downloadItem.type == 'app') {
+                    var download = downloadItem as AppAdModel;
+                    return buildAppAdTile(download);
+                  } else if (downloadItem.type == 'game') {
+                    var download = downloadItem as GameAdModel;
+                    return buildDownloadGameTile(download);
+                  } else {
+                    var download = downloadItem as DownloadedFileModel;
+                    return buildDownloadFilesTile(download);
+                  }
+                }),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   Row buildAppAdTile(AppAdModel download) {
     return Row(
       children: [
-        SizedBox(
+        Container(
+          padding: EdgeInsets.only(left: lessPadding),
           width: Get.width / 4,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(lessPadding),
@@ -144,7 +374,8 @@ class MyFiles extends StatelessWidget {
   Row buildDownloadGameTile(GameAdModel download) {
     return Row(
       children: [
-        SizedBox(
+        Container(
+          padding: EdgeInsets.only(left: lessPadding),
           width: Get.width / 4,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(lessPadding),
@@ -223,7 +454,8 @@ class MyFiles extends StatelessWidget {
   Row buildDownloadFilesTile(DownloadedFileModel download) {
     return Row(
       children: [
-        SizedBox(
+        Container(
+          padding: EdgeInsets.only(left: lessPadding),
           width: Get.width / 4,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(lessPadding),
@@ -277,13 +509,13 @@ class MyFiles extends StatelessWidget {
                       children: [
                         capText(download.size ?? ""),
                         SizedBox(width: mediumPadding),
-                        Container(height: 10, color: capColor, width: 1),
+                        Container(height: 10, color: textColor, width: 1),
                         SizedBox(width: mediumPadding),
                         capText(download.extension != null
                             ? download.extension!.toUpperCase()
                             : ''),
                         SizedBox(width: mediumPadding),
-                        Container(height: 10, color: capColor, width: 1),
+                        Container(height: 10, color: textColor, width: 1),
                         SizedBox(width: mediumPadding),
                         capText(download.quality != null
                             ? download.quality!.toUpperCase()
@@ -315,6 +547,22 @@ class MyFiles extends StatelessWidget {
             HapticFeedback.vibrate();
           },
           icon: const Icon(Icons.more_vert, size: 15),
+        ),
+      ],
+    );
+  }
+
+  TabBar buildTabBar() {
+    return TabBar(
+      tabs: [
+        Tab(
+          child: b1Text('Download'),
+        ),
+        Tab(
+          child: b1Text('Music'),
+        ),
+        Tab(
+          child: b1Text('Video'),
         ),
       ],
     );

@@ -1,13 +1,24 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:altra_tube/functions/AssetsServices.dart';
+import 'package:altra_tube/functions/PermissionServices.dart';
 import 'package:altra_tube/models/dashboard/HomeSitesModel.dart';
 import 'package:altra_tube/models/dashboard/musicModel.dart';
 import 'package:altra_tube/models/myFiles/DownloadedFileModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:on_audio_query/on_audio_query.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 import '../../models/dashboard/VideoModel.dart';
 import '../../models/dashboard/channelModel.dart';
+import '../../models/myFiles/deviceVideoModel.dart';
 
 class DashboardProvider extends ChangeNotifier {
+  String tag = 'DashboardProvider';
+
   ///TODO:Home Tab
   int homeBottomIndex = 0;
   setHomeBottomIndex(int index) {
@@ -1483,7 +1494,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1495,7 +1506,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1507,7 +1518,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 0,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1519,7 +1530,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 0,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1531,7 +1542,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 0,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1544,7 +1555,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 1,
-          type:'game',
+          type: 'game',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1556,7 +1567,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 1,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1568,7 +1579,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1580,7 +1591,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1592,7 +1603,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'app',
+          type: 'app',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1604,7 +1615,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'app',
+          type: 'app',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1616,7 +1627,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1628,7 +1639,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'app',
+          type: 'app',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1640,7 +1651,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1652,7 +1663,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1664,7 +1675,7 @@ class DashboardProvider extends ChangeNotifier {
           path: 'djfffdsfdf d',
           progress: 30,
           status: 2,
-          type:'file',
+          type: 'file',
           thumbnail: 'https://wallpapercave.com/wp/wp2577339.jpg',
           duration: '01:20',
           size: '3MB',
@@ -1672,4 +1683,130 @@ class DashboardProvider extends ChangeNotifier {
           quality: '360p'),
     ],
   };
+
+  List<SongModel> deviceSongs = [];
+  bool isLoadingSongs = false;
+
+  Future<void> getDeviceSongs() async {
+    debugPrint('$tag getDeviceSongs loading...');
+    isLoadingSongs = true;
+    notifyListeners();
+    var granted = await PermissionServices().getPermission(Permission.storage);
+    // await PermissionServices().getPermission(Permission.manageExternalStorage);
+    if (granted) {
+      deviceSongs = await AssetsServices().getDeviceSongs();
+      notifyListeners();
+    }
+    debugPrint('$tag getDeviceSongs total ${deviceSongs.length} ');
+    isLoadingSongs = false;
+    notifyListeners();
+  }
+
+  Future<void> getDeviceVideos() async {
+    debugPrint('$tag getDeviceVideos loading...');
+    var granted = await PermissionServices().getPermission(Permission.location);
+    if (granted) {
+      deviceVideos = await AssetsServices().getDeviceVideos();
+      notifyListeners();
+    }
+    debugPrint('$tag getDeviceVideos total ${deviceVideos.length} ');
+  }
+
+  List<AssetPathEntity> paths = [];
+  List<MapEntry<AssetPathEntity, List<AssetEntity>>> imageFolders = [];
+  List<MapEntry<AssetPathEntity, List<AssetEntity>>> musicFolders = [];
+
+  bool isLoadingVideos = false;
+  List<dynamic> deviceVideos = [];
+  List<AssetEntity> deviceVideos2 = [];
+  List<DeviceVideoModel> deviceVideos3 = [];
+  Future<void> getPaths() async {
+    // var granted = await PermissionServices().getPermission(Permission.videos);
+    //  granted = await PermissionServices().getPermission(Permission.audio);
+    var granted = await PermissionServices().getPermission(Permission.mediaLibrary);
+    if (granted) {
+      isLoadingVideos = true;
+      notifyListeners();
+      paths = await PhotoManager.getAssetPathList();
+      deviceVideos2.clear();
+      deviceVideos3.clear();
+      for (var e in paths) {
+        final List<AssetEntity> entities =
+            await e.getAssetListPaged(page: 0, size: 80);
+        notifyListeners();
+        if (entities.any((ele) => ele.type == AssetType.video)) {
+          List<AssetEntity> list = [];
+          list.addAll(
+              entities.where((element) => element.type == AssetType.video));
+          deviceVideos2.addAll(list);
+        }
+      }
+      debugPrint('$tag deviceVideos2 ${deviceVideos2.length}');
+      notifyListeners();
+      for (var element in deviceVideos2) {
+        var deviceVideoModel = DeviceVideoModel(
+            id: element.id,
+            title: element.title,
+            duration: element.duration,
+            size: element.size,
+            thumnail: await getThumbnail(element),
+            path: element.relativePath,
+            file: await getFile(element));
+        deviceVideos3.add(deviceVideoModel);
+      }
+      debugPrint('$tag deviceVideos3 ${deviceVideos3.length}');
+      isLoadingVideos = false;
+      notifyListeners();
+    }
+  }
+
+  Future<List<File>> getFutureFile(List<AssetEntity> entities) async {
+    List<File> list = [];
+    for (var element in entities) {
+      var file = await element.file;
+      if (file != null) {
+        list.add(file);
+      }
+    }
+    return list;
+  }
+
+  Future<Uint8List?> getThumbnail(AssetEntity entity) {
+    return entity.thumbnailData;
+  }
+
+  Future<File?> getFile(AssetEntity entity) {
+    return entity.file;
+  }
+
+  List<ToolCenterModel> tools = [
+    ToolCenterModel(
+        icon: Icons.rocket_rounded, name: 'Boost', color: Colors.green),
+    ToolCenterModel(
+        icon: Icons.rocket_rounded, name: '467.08MB', color: Colors.pinkAccent),
+    ToolCenterModel(
+        icon: Icons.battery_saver_rounded,
+        name: 'Battery Saver',
+        color: Colors.blueAccent),
+    ToolCenterModel(
+        icon: Icons.whatsapp, name: 'WhatsApp Cleaner', color: Colors.green),
+    ToolCenterModel(
+        icon: Icons.folder_delete, name: 'Large Files', color: Colors.blue),
+    ToolCenterModel(
+        icon: Icons.android, name: 'App Manager', color: Colors.amberAccent),
+    ToolCenterModel(
+        icon: Icons.folder, name: 'Files manager', color: Colors.yellow),
+    ToolCenterModel(
+        icon: Icons.circle_notifications_outlined,
+        name: 'Status Saver',
+        color: Colors.green),
+  ];
+}
+
+class ToolCenterModel {
+  final IconData icon;
+  final String name;
+  final Color color;
+  ToolCenterModel(
+      {required this.color, required this.icon, required this.name});
 }

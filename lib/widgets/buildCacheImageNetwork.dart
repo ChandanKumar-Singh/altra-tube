@@ -7,9 +7,20 @@ Widget buildCachedNetworkImage({required String imageUrl}) {
     imageUrl: imageUrl,
     imageBuilder: (context, imageProvider) => Image.network(
       imageUrl,
-      fit: BoxFit.fill,
+      fit: BoxFit.cover,
     ),
     placeholder: (context, url) => const Center(child: CupertinoActivityIndicator()),
     errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
+  );
+}
+CachedNetworkImageProvider buildCachedNetworkImageProvider({required String imageUrl}) {
+  return CachedNetworkImageProvider(
+     imageUrl,
+    // imageBuilder: (context, imageProvider) => Image.network(
+    //   imageUrl,
+    //   fit: BoxFit.cover,
+    // ),
+    // placeholder: (context, url) => const Center(child: CupertinoActivityIndicator()),
+    // errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
   );
 }

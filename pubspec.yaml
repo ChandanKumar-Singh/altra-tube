@@ -19,6 +19,11 @@ dependencies:
   font_awesome_flutter: ^10.3.0
   cached_network_image: ^3.2.3
   linear_progress_bar: ^1.1.0
+  on_audio_query: ^2.6.1
+  permission_handler: ^9.2.0
+  fluttertoast: ^8.1.2
+  fetch_all_videos: ^1.0.5
+  photo_manager: ^2.5.2
 
 dev_dependencies:
   flutter_test:
