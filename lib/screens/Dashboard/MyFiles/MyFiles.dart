@@ -23,10 +23,7 @@ class _MyFilesState extends State<MyFiles> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    var dsp = Provider.of<DashboardProvider>(context, listen: false);
-    dsp.getPaths();
-    dsp.getDeviceSongs();
-    // dsp.getDeviceVideos();
+
   }
 
   @override

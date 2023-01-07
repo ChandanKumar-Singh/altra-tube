@@ -11,10 +11,17 @@ import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:youtube_data_api/models/video.dart';
+import 'package:youtube_data_api/models/video_data.dart';
+import 'package:youtube_data_api/youtube_data_api.dart';
 
+import '../../functions/functions.dart';
 import '../../models/dashboard/VideoModel.dart';
 import '../../models/dashboard/channelModel.dart';
 import '../../models/myFiles/deviceVideoModel.dart';
+import 'package:http/http.dart' as http;
+
+String API_KEY = 'AIzaSyBGj_Duj__ivCxJ2ya3ilkVfEzX1ZSRlpE';
 
 class DashboardProvider extends ChangeNotifier {
   String tag = 'DashboardProvider';
@@ -51,6 +58,83 @@ class DashboardProvider extends ChangeNotifier {
         url: 'www.youtube.com',
         image: 'assets/siteLogos/youtube-1837872__340.webp'),
   ];
+  static const CHANNEL_ID = 'UC5lbdURzjB0irr-FTbjWN1A';
+  static const _baseUrl = 'www.googleapis.com';
+  YoutubeDataApi youtubeDataApi = YoutubeDataApi();
+
+  List<Video> ytForYouVideos = [];
+  List<Video> trendingMusicVideos =[];
+  List<Video> trendingGamingVideos =[];
+  List<Video> trendingMoviesVideos =[];
+  List<Video> ytTrendingVideos = [];
+  List<VideoModel> ytTrendingVideos2 = [];
+  Future<void> getChannelInfo() async {
+    Map<String, String> parameters = {
+      'part': 'snippet,contentDetails,statistics',
+      'id': CHANNEL_ID,
+      'key': API_KEY,
+    };
+    Map<String, String> headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    };
+    Uri uri = Uri.https(
+      _baseUrl,
+      '/youtube/v3/channels',
+      parameters,
+    );
+    var response = await http.get(uri, headers: headers);
+    print(response.body);
+    print(response.request!.url);
+    // ChannelInfo channelInfo = channelInfoFromJson(response.body);
+    // return channelInfo;
+  }
+
+  Future<void> getForYouVideos() async {
+     trendingMusicVideos = await youtubeDataApi.fetchTrendingMusic();
+     trendingGamingVideos =
+        await youtubeDataApi.fetchTrendingGaming();
+     trendingMoviesVideos =
+        await youtubeDataApi.fetchTrendingMovies();
+    ytForYouVideos.clear();
+    ytForYouVideos.addAll([
+      ...trendingGamingVideos,
+      ...trendingMoviesVideos,
+      ...trendingMusicVideos
+    ]);
+    ytForYouVideos.shuffle();
+    debugPrint('$tag getForYouVideos ${ytForYouVideos.length}');
+
+  }
+
+  Future<void> getTrendingVideos() async {
+    var trending = await youtubeDataApi.fetchTrendingVideo();
+    ytTrendingVideos.clear();
+    ytTrendingVideos2.clear();
+    if (trending.runtimeType == <Video>[].runtimeType && trending != null) {
+      ytTrendingVideos = trending;
+      notifyListeners();
+    }
+    // for (var element in ytTrendingVideos) {
+    //   VideoData? videoData =
+    //       await youtubeDataApi.fetchVideoData(element.videoId!);
+    //   String? videoTitle = videoData?.video?.title;
+    //   String? videoChannelName = videoData?.video?.channelName;
+    //   String? viewsCount = videoData?.video?.viewCount;
+    //   String? likeCount = videoData?.video?.likeCount;
+    //   String? channelThumbnail = videoData?.video?.channelThumb;
+    //   String? channelId = videoData?.video?.channelId;
+    //   String? subscribeCount = videoData?.video?.subscribeCount;
+    //   List<Video?>? relatedVideos = videoData?.videosList;
+    //   ytTrendingVideos2.add(VideoModel(
+    //       title: videoTitle ?? '',
+    //       views: viewsCount,
+    //       channelLogo: channelThumbnail,
+    //       channelName: videoChannelName));
+    // }
+    // debugPrint('$tag getTrendingVideos ${trending.map((e) => e.title)}');
+    // debugPrint('$tag getTrendingVideos ${ytTrendingVideos2.length}');
+  }
+
   List<VideoModel> forYouVideos = [
     VideoModel(
         title:
@@ -1485,6 +1569,16 @@ class DashboardProvider extends ChangeNotifier {
     ],
   };
 
+  Future<void> onRefresh()async{
+   await getForYouVideos();
+   await getTrendingVideos();
+    //await getChannelInfo();
+   await getPaths();
+   await getDeviceSongs();
+   await getDeviceVideos();
+  }
+
+
   ///TODO:MyFiles Tab
   Map<String, List<dynamic>> downloadedList = {
     'downloads': [
@@ -1721,9 +1815,8 @@ class DashboardProvider extends ChangeNotifier {
   List<AssetEntity> deviceVideos2 = [];
   List<DeviceVideoModel> deviceVideos3 = [];
   Future<void> getPaths() async {
-    // var granted = await PermissionServices().getPermission(Permission.videos);
-    //  granted = await PermissionServices().getPermission(Permission.audio);
-    var granted = await PermissionServices().getPermission(Permission.mediaLibrary);
+    var granted =
+        await PermissionServices().getPermission(Permission.mediaLibrary);
     if (granted) {
       isLoadingVideos = true;
       notifyListeners();
@@ -1758,25 +1851,6 @@ class DashboardProvider extends ChangeNotifier {
       isLoadingVideos = false;
       notifyListeners();
     }
-  }
-
-  Future<List<File>> getFutureFile(List<AssetEntity> entities) async {
-    List<File> list = [];
-    for (var element in entities) {
-      var file = await element.file;
-      if (file != null) {
-        list.add(file);
-      }
-    }
-    return list;
-  }
-
-  Future<Uint8List?> getThumbnail(AssetEntity entity) {
-    return entity.thumbnailData;
-  }
-
-  Future<File?> getFile(AssetEntity entity) {
-    return entity.file;
   }
 
   List<ToolCenterModel> tools = [

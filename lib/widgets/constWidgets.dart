@@ -1,8 +1,10 @@
 import 'package:altra_tube/utils/constants.dart';
+import 'package:altra_tube/widgets/video_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:youtube_data_api/models/video.dart';
 
 const IconData currency_rupee_outlined =
     IconData(0xf05db, fontFamily: 'MaterialIcons');
@@ -230,3 +232,11 @@ void showToast({required String msg,Color?color,ToastGravity?gravity}) {
 
   );
 }
+navigateToPlayer(BuildContext context,Video video){
+  Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (_) => VideoDetailPage(
+              videoId: video.videoId!)));
+}
+

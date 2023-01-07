@@ -10,11 +10,27 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 import '../../../providers/dashboard/dashboardProvider.dart';
+import '../../../utils/categories.dart';
 import '../../../utils/constants.dart';
 import '../../../widgets/buildCacheImageNetwork.dart';
+import '../../../widgets/video_widget.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    var dsp = Provider.of<DashboardProvider>(context, listen: false);
+
+    dsp.onRefresh();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,237 +68,249 @@ class HomeScreen extends StatelessWidget {
     });
   }
 
-  ListView buildChannelsTab(DashboardProvider dsp, BuildContext context) {
-    return ListView(
-      children: [
-        SizedBox(
-          height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ...dsp.channelsCategoryList.map((channel) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () async {
-                        HapticFeedback.vibrate();
+  Widget buildChannelsTab(DashboardProvider dsp, BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: dsp.onRefresh,
+      child: ListView(
+        children: [
+          SizedBox(
+            height: 80,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ...dsp.channelsCategoryList.map((channel) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () async {
+                          HapticFeedback.vibrate();
+                          // navigateToPlayer(context, video);
 
-                        debugPrint(channel.url);
-                      },
-                      child: CircleAvatar(
-                        radius: (Get.width / 13 - 10),
-                        backgroundImage: AssetImage(
-                          channel.image,
+                          debugPrint(channel.url);
+                        },
+                        child: CircleAvatar(
+                          radius: (Get.width / 13 - 10),
+                          backgroundImage: AssetImage(
+                            channel.image,
+                          ),
                         ),
                       ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      channel.name,
-                      style: Theme.of(context).textTheme.caption,
-                    ),
-                    const Spacer(),
-                  ],
-                );
-              })
-            ],
+                      const Spacer(),
+                      Text(
+                        channel.name,
+                        style: Theme.of(context).textTheme.caption,
+                      ),
+                      const Spacer(),
+                    ],
+                  );
+                })
+              ],
+            ),
           ),
-        ),
-        ...dsp.channelsByCategoryList.entries.map((category) {
-          int index = dsp.channelsByCategoryList.entries
-              .toList()
-              .indexWhere((element) => element.key == category.key);
-          debugPrint(index.toString());
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                child: b1Text(category.key),
-              ),
-              ...category.value
-                  .getRange(0,
-                      dsp.channelsExpanded[index] ? category.value.length : 5)
-                  .map((channel) {
-                return ListTile(
-                  onTap: () async {
-                    HapticFeedback.vibrate();
-                  },
-                  leading: CircleAvatar(
-                    backgroundImage: buildCachedNetworkImageProvider(
-                        imageUrl: channel.channelLogo ?? ''),
-                  ),
-                  title: b1Text(channel.channelName ?? ''),
-                  subtitle: capText('${channel.subscribers} subscribers'),
-                  trailing: IconButton(
-                      onPressed: () async {
-                        HapticFeedback.vibrate();
-                      },
-                      icon: const FaIcon(FontAwesomeIcons.share)),
-                );
-              }),
-              GestureDetector(
-                onTap: () {
-                  dsp.updateChannelExpanded(
-                      !dsp.channelsExpanded[index], index);
-                },
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .backgroundColor
-                                .withOpacity(0.5),
-                          ),
-                          width: double.maxFinite,
-                          child: Icon(dsp.channelsExpanded[index]
-                              ? Icons.keyboard_arrow_up_rounded
-                              : Icons.keyboard_arrow_down_rounded)),
+          ...dsp.channelsByCategoryList.entries.map((category) {
+            int index = dsp.channelsByCategoryList.entries
+                .toList()
+                .indexWhere((element) => element.key == category.key);
+            debugPrint(index.toString());
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  child: b1Text(category.key),
+                ),
+                ...category.value
+                    .getRange(0,
+                        dsp.channelsExpanded[index] ? category.value.length : 5)
+                    .map((channel) {
+                  return ListTile(
+                    onTap: () async {
+                      HapticFeedback.vibrate();
+                    },
+                    leading: CircleAvatar(
+                      backgroundImage: buildCachedNetworkImageProvider(
+                          imageUrl: channel.channelLogo ?? ''),
                     ),
+                    title: b1Text(channel.channelName ?? ''),
+                    subtitle: capText('${channel.subscribers} subscribers'),
+                    trailing: IconButton(
+                        onPressed: () async {
+                          HapticFeedback.vibrate();
+                        },
+                        icon: const FaIcon(FontAwesomeIcons.share)),
+                  );
+                }),
+                GestureDetector(
+                  onTap: () {
+                    dsp.updateChannelExpanded(
+                        !dsp.channelsExpanded[index], index);
+                  },
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .backgroundColor
+                                  .withOpacity(0.5),
+                            ),
+                            width: double.maxFinite,
+                            child: Icon(dsp.channelsExpanded[index]
+                                ? Icons.keyboard_arrow_up_rounded
+                                : Icons.keyboard_arrow_down_rounded)),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget buildTrendingTab(DashboardProvider dsp, BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: dsp.onRefresh,
+      child: ListView(
+        children: [
+          ...dsp.ytTrendingVideos.map((video) {
+            return GestureDetector(
+              onTap: () {
+                HapticFeedback.vibrate();
+                navigateToPlayer(context, video);
+              },
+              child: SizedBox(
+                // height: 250,
+                width: double.maxFinite,
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        SizedBox(
+                          height: 200,
+                          width: double.maxFinite,
+                          child: buildCachedNetworkImage(
+                            imageUrl: video.thumbnails!.first.url ?? '',
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 10,
+                          left: 10,
+                          child: b1Text('${video.views} views'),
+                        ),
+                        Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: b1Text(video.duration ?? ''),
+                        ),
+                        Positioned(
+                          top: -15,
+                          right: -15,
+                          child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Theme.of(context)
+                                    .backgroundColor
+                                    .withOpacity(0.2),
+                              ),
+                              child: IconButton(
+                                  onPressed: () {
+                                    HapticFeedback.vibrate();
+                                  },
+                                  icon: const Icon(Icons.add))),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: mediumPadding),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            HapticFeedback.vibrate();
+                          },
+                          child: CircleAvatar(
+                            radius: 25,
+                            backgroundImage: buildCachedNetworkImageProvider(
+                                imageUrl: video.thumbnails![1].url ?? ''),
+                          ),
+                        ),
+                        SizedBox(width: mediumPadding),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                      child: b1Text(
+                                    video.title ?? '',
+                                    maxLine: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  )),
+                                ],
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          HapticFeedback.vibrate();
+                                        },
+                                        child: capText(video.channelName ?? ""),
+                                      ),
+                                      SizedBox(width: mediumPadding),
+                                      capText(video.views ?? ''),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () async {},
+                                        icon:
+                                            const Icon(Icons.download_outlined),
+                                      ),
+                                      IconButton(
+                                        onPressed: () async {},
+                                        icon: const Icon(
+                                            Icons.headphones_outlined),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    )
                   ],
                 ),
               ),
-              const Divider(),
-            ],
-          );
-        }),
-      ],
+            );
+          }),
+        ],
+      ),
     );
   }
 
-  ListView buildTrendingTab(DashboardProvider dsp, BuildContext context) {
-    return ListView(
-      children: [
-        ...dsp.trendingVideos.map((video) {
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.vibrate();
-            },
-            child: SizedBox(
-              // height: 250,
-              width: double.maxFinite,
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      SizedBox(
-                        height: 200,
-                        width: double.maxFinite,
-                        child: buildCachedNetworkImage(
-                          imageUrl: video.thumbnail ?? '',
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        left: 10,
-                        child: b1Text('${video.views} views'),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        right: 10,
-                        child: b1Text(video.duration ?? ''),
-                      ),
-                      Positioned(
-                        top: -15,
-                        right: -15,
-                        child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Theme.of(context)
-                                  .backgroundColor
-                                  .withOpacity(0.2),
-                            ),
-                            child: IconButton(
-                                onPressed: () {
-                                  HapticFeedback.vibrate();
-                                },
-                                icon: const Icon(Icons.add))),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: mediumPadding),
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          HapticFeedback.vibrate();
-                        },
-                        child: CircleAvatar(
-                          radius: 25,
-                          backgroundImage: buildCachedNetworkImageProvider(
-                              imageUrl: video.channelLogo ?? ''),
-                        ),
-                      ),
-                      SizedBox(width: mediumPadding),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: b1Text(
-                                  video.title,
-                                  maxLine: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                )),
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        HapticFeedback.vibrate();
-                                      },
-                                      child: capText(video.channelName ?? ""),
-                                    ),
-                                    SizedBox(width: mediumPadding),
-                                    capText(video.uploadTime ?? ''),
-                                  ],
-                                ),
-                                const Spacer(),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () async {},
-                                      icon: const Icon(Icons.download_outlined),
-                                    ),
-                                    IconButton(
-                                      onPressed: () async {},
-                                      icon:
-                                          const Icon(Icons.headphones_outlined),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  ListView buildMusicTab(BuildContext context, DashboardProvider dsp) {
-    return ListView(
-      children: [
-        buildMusicByCategory(context, dsp),
-        buildMusicByCategory(context, dsp),
-        buildMusicByCategory(context, dsp),
-        buildMusicByCategory(context, dsp),
-        buildMusicByCategory(context, dsp),
-      ],
+  Widget buildMusicTab(BuildContext context, DashboardProvider dsp) {
+    return RefreshIndicator(
+      onRefresh: dsp.onRefresh,
+      child: ListView(
+        children: [
+          buildMusicByCategory(context, dsp),
+          buildMusicByCategory(context, dsp),
+          buildMusicByCategory(context, dsp),
+          buildMusicByCategory(context, dsp),
+          buildMusicByCategory(context, dsp),
+        ],
+      ),
     );
   }
 
@@ -299,22 +327,23 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           child: b1Text('This Year in Music'),
         ),
-        ...dsp.musicLists.map((music) {
+        ...dsp.trendingMusicVideos.map((music) {
           return GestureDetector(
             onTap: () async {
               HapticFeedback.vibrate();
+              navigateToPlayer(context, music);
             },
             child: Row(
               children: [
                 Expanded(
                   flex: 1,
                   child: Container(
-                    padding:  EdgeInsets.all(lessPadding),
+                    padding: EdgeInsets.all(lessPadding),
                     height: Get.height / 6,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(mediumRadius),
                       child: buildCachedNetworkImage(
-                          imageUrl: music.thumbnail ?? ""),
+                          imageUrl: music.thumbnails!.first.url ?? ""),
                     ),
                   ),
                 ),
@@ -328,7 +357,7 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Expanded(
                               child: b1Text(
-                            music.title,
+                            music.title ?? '',
                             maxLine: 1,
                             overflow: TextOverflow.ellipsis,
                           )),
@@ -339,7 +368,7 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: capText(
-                              music.description ?? '',
+                              music.channelName ?? '',
                               maxLine: 3,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -350,11 +379,18 @@ class HomeScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          GestureDetector(
+                          Expanded(
+                            child: GestureDetector(
                               onTap: () {
                                 HapticFeedback.vibrate();
                               },
-                              child: capText('${music.tracks ?? ''} tracks')),
+                              child: capText(
+                                '${music.thumbnails!.last.url ?? ''} tracks',
+                                maxLine: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
                           Row(
                             children: [
                               IconButton(
@@ -384,184 +420,198 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  ListView buildForYouTab(DashboardProvider dsp, BuildContext context) {
-    return ListView(
-      children: [
-        SizedBox(
-          height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ...dsp.homeSitesList.map((site) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () async {
-                        HapticFeedback.vibrate();
-
-                        debugPrint(site.url);
-                      },
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundImage: AssetImage(
-                          site.image,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      site.name,
-                      style: Theme.of(context).textTheme.caption,
-                    ),
-                    const Spacer(),
-                  ],
-                );
-              })
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withOpacity(0.3),
-                    shadowColor: Colors.transparent,
-                  ),
-                  onPressed: () async {
-                    HapticFeedback.vibrate();
-                  },
-                  child: const Text(
-                    'View all sites',
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        ...dsp.forYouVideos.map((video) {
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.vibrate();
-            },
-            child: SizedBox(
-              // height: 250,
-              width: double.maxFinite,
-              child: Column(
-                children: [
-                  Stack(
+  Widget buildForYouTab(DashboardProvider dsp, BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: dsp.onRefresh,
+      child: ListView(
+        children: [
+          SizedBox(
+            height: 80,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ...dsp.homeSitesList.map((site) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      SizedBox(
-                        height: 200,
-                        width: double.maxFinite,
-                        child: buildCachedNetworkImage(
-                          imageUrl: video.thumbnail ?? '',
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        left: 10,
-                        child: b1Text('${video.views} views'),
-                      ),
-                      Positioned(
-                        bottom: 10,
-                        right: 10,
-                        child: b1Text(video.duration ?? ''),
-                      ),
-                      Positioned(
-                        top: -15,
-                        right: -15,
-                        child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Theme.of(context)
-                                  .backgroundColor
-                                  .withOpacity(0.2),
-                            ),
-                            child: IconButton(
-                                onPressed: () {
-                                  HapticFeedback.vibrate();
-                                },
-                                icon: const Icon(Icons.add))),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: mediumPadding),
-                  Row(
-                    children: [
+                      const Spacer(),
                       GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           HapticFeedback.vibrate();
+
+                          debugPrint(site.url);
                         },
                         child: CircleAvatar(
-                          radius: 25,
-                          backgroundImage: buildCachedNetworkImageProvider(
-                              imageUrl: video.channelLogo ?? ''),
+                          radius: 20,
+                          backgroundImage: AssetImage(
+                            site.image,
+                          ),
                         ),
                       ),
-                      SizedBox(width: mediumPadding),
-                      Expanded(
-                        child: Column(
+                      const Spacer(),
+                      Text(
+                        site.name,
+                        style: Theme.of(context).textTheme.caption,
+                      ),
+                      const Spacer(),
+                    ],
+                  );
+                })
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.3),
+                      shadowColor: Colors.transparent,
+                    ),
+                    onPressed: () async {
+                      HapticFeedback.vibrate();
+                    },
+                    child: const Text(
+                      'View all sites',
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...dsp.ytForYouVideos.map((video) {
+            return Column(
+              children: [
+                //   VideoWidget(
+                //   video: video,
+                // ),
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.vibrate();
+                    navigateToPlayer(context, video);
+                  },
+                  child: SizedBox(
+                    // height: 250,
+                    width: double.maxFinite,
+                    child: Column(
+                      children: [
+                        Stack(
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: b1Text(
-                                  video.title,
-                                  maxLine: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                )),
-                              ],
+                            SizedBox(
+                              height: 200,
+                              width: double.maxFinite,
+                              child: buildCachedNetworkImage(
+                                imageUrl: video.thumbnails!.first.url ?? '',
+                              ),
                             ),
-                            Row(
-                              children: <Widget>[
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
+                            Positioned(
+                              bottom: 10,
+                              left: 10,
+                              child: b1Text('${video.views} views'),
+                            ),
+                            Positioned(
+                              bottom: 10,
+                              right: 10,
+                              child: b1Text(video.duration ?? ''),
+                            ),
+                            Positioned(
+                              top: -15,
+                              right: -15,
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Theme.of(context)
+                                        .backgroundColor
+                                        .withOpacity(0.2),
+                                  ),
+                                  child: IconButton(
+                                      onPressed: () {
                                         HapticFeedback.vibrate();
                                       },
-                                      child: capText(video.channelName ?? ""),
-                                    ),
-                                    SizedBox(width: mediumPadding),
-                                    capText(video.uploadTime ?? ''),
-                                  ],
-                                ),
-                                const Spacer(),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () async {},
-                                      icon: const Icon(Icons.download_outlined),
-                                    ),
-                                    IconButton(
-                                      onPressed: () async {},
-                                      icon:
-                                          const Icon(Icons.headphones_outlined),
-                                    ),
-                                  ],
-                                )
-                              ],
+                                      icon: const Icon(Icons.add))),
                             ),
                           ],
                         ),
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-          );
-        }),
-      ],
+                        SizedBox(height: mediumPadding),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                HapticFeedback.vibrate();
+                              },
+                              child: CircleAvatar(
+                                radius: 25,
+                                backgroundImage:
+                                    buildCachedNetworkImageProvider(
+                                        imageUrl: video.channelName ?? ''),
+                              ),
+                            ),
+                            SizedBox(width: mediumPadding),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                          child: b1Text(
+                                        video.title ?? '',
+                                        maxLine: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      )),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      Row(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              HapticFeedback.vibrate();
+                                            },
+                                            child: capText(
+                                                video.channelName ?? ""),
+                                          ),
+                                          SizedBox(width: mediumPadding),
+                                          capText(video.views ?? ''),
+                                        ],
+                                      ),
+                                      const Spacer(),
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            onPressed: () async {},
+                                            icon: const Icon(
+                                                Icons.download_outlined),
+                                          ),
+                                          IconButton(
+                                            onPressed: () async {},
+                                            icon: const Icon(
+                                                Icons.headphones_outlined),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }),
+        ],
+      ),
     );
   }
 
@@ -599,22 +649,42 @@ class HomeScreen extends StatelessWidget {
   }
 
   TabBar buildTabBar() {
-    return  TabBar(
+    return TabBar(
       tabs: [
         Tab(
-          child: Text('Sub',style: TextStyle(color: Theme.of(Get.context!).textTheme.headline6!.color),),
+          child: Text(
+            'Sub',
+            style: TextStyle(
+                color: Theme.of(Get.context!).textTheme.headline6!.color),
+          ),
         ),
         Tab(
-          child: Text('For You',style: TextStyle(color: Theme.of(Get.context!).textTheme.headline6!.color),),
+          child: Text(
+            'For You',
+            style: TextStyle(
+                color: Theme.of(Get.context!).textTheme.headline6!.color),
+          ),
         ),
         Tab(
-          child: Text('Music',style: TextStyle(color: Theme.of(Get.context!).textTheme.headline6!.color),),
+          child: Text(
+            'Music',
+            style: TextStyle(
+                color: Theme.of(Get.context!).textTheme.headline6!.color),
+          ),
         ),
         Tab(
-          child: Text('Trending',style: TextStyle(color: Theme.of(Get.context!).textTheme.headline6!.color),),
+          child: Text(
+            'Trending',
+            style: TextStyle(
+                color: Theme.of(Get.context!).textTheme.headline6!.color),
+          ),
         ),
         Tab(
-          child: Text('Channels',style: TextStyle(color: Theme.of(Get.context!).textTheme.headline6!.color),),
+          child: Text(
+            'Channels',
+            style: TextStyle(
+                color: Theme.of(Get.context!).textTheme.headline6!.color),
+          ),
         ),
       ],
     );
