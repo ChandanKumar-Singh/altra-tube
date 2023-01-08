@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:altra_tube/providers/AudioProvider/AudioProvider.dart';
 import 'package:altra_tube/providers/dashboard/dashboardProvider.dart';
+import 'package:altra_tube/screens/Dashboard/AudioPlayer/AudioPlayerWidget.dart';
 import 'package:altra_tube/screens/Dashboard/Home/homeScreen.dart';
 import 'package:altra_tube/screens/Dashboard/MyFiles/MyFiles.dart';
 import 'package:altra_tube/utils/constants.dart';
@@ -25,19 +29,38 @@ class _DashboardState extends State<Dashboard>
     // TODO: implement initState
     super.initState();
     var dsp = Provider.of<DashboardProvider>(context, listen: false);
+    var ap = Provider.of<AudioProvider>(context, listen: false);
+    ap.audioTimer();
+    // Timer(const Duration(seconds: 1), () {
+    //   setState(() {});
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(builder: (context, dsp, _) {
-      return Scaffold(
-        body: dsp.homeBottomIndex == 0
-            ? const HomeScreen()
-            : dsp.homeBottomIndex == 1
-            ? const MyFiles()
-            : Me(),
-        bottomNavigationBar: buildBottomNavigationBar(dsp),
-      );
+      return Consumer<AudioProvider>(builder: (context, ap, _) {
+        print(ap.audioHandler.mediaItem.value!=null);
+        print(ap.bottomSheetOpen);
+        print(ap.audioHandler.mediaItem.value!=null
+            && !ap.bottomSheetOpen);
+        return Scaffold(
+          body: Scaffold(
+            body: dsp.homeBottomIndex == 0
+                ? const HomeScreen()
+                : dsp.homeBottomIndex == 1
+                    ? const MyFiles()
+                    : const Me(),
+            bottomNavigationBar:
+                // ap.playList.children.isNotEmpty && !ap.bottomSheetOpen
+            ap.audioHandler.mediaItem.value!=null
+                // && !ap.bottomSheetOpen
+                    ? const MinimizedAudioPlayer()
+                    : const SizedBox(),
+          ),
+          bottomNavigationBar: buildBottomNavigationBar(dsp),
+        );
+      });
     });
   }
 
@@ -58,4 +81,3 @@ class _DashboardState extends State<Dashboard>
     );
   }
 }
-

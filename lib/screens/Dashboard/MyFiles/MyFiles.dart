@@ -1,11 +1,16 @@
+import 'package:altra_tube/functions/functions.dart';
 import 'package:altra_tube/models/myFiles/DownloadedFileModel.dart';
+import 'package:altra_tube/providers/AudioProvider/AudioProvider.dart';
 import 'package:altra_tube/providers/dashboard/dashboardProvider.dart';
+import 'package:altra_tube/screens/Dashboard/AudioPlayer/AudioPlayerWidget.dart';
 import 'package:altra_tube/utils/constants.dart';
 import 'package:altra_tube/widgets/buildCacheImageNetwork.dart';
 import 'package:altra_tube/widgets/constWidgets.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 
@@ -18,12 +23,13 @@ class MyFiles extends StatefulWidget {
   State<MyFiles> createState() => _MyFilesState();
 }
 
+
 class _MyFilesState extends State<MyFiles> {
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
   }
 
   @override
@@ -63,7 +69,7 @@ class _MyFilesState extends State<MyFiles> {
   ListView buildVideoTab(DashboardProvider dsp) {
     return ListView(
       children: [
-        if(dsp.isLoadingVideos)
+        if (dsp.isLoadingVideos)
           Container(
             height: 30,
             width: double.maxFinite,
@@ -76,7 +82,8 @@ class _MyFilesState extends State<MyFiles> {
                 const SizedBox(
                   height: 15,
                   width: 15,
-                  child: CircularProgressIndicator(strokeWidth: 2,color: Colors.pink),
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.pink),
                 ),
               ],
             ),
@@ -91,7 +98,7 @@ class _MyFilesState extends State<MyFiles> {
           return Column(
             children: [
               GestureDetector(
-                onTap:()async{
+                onTap: () async {
                   HapticFeedback.vibrate();
                 },
                 child: Row(
@@ -173,26 +180,29 @@ class _MyFilesState extends State<MyFiles> {
   }
 
   ListView buildMusicTab(DashboardProvider dsp) {
+    var ap =Provider.of<AudioProvider>(context, listen: false);
+
     return ListView(
       children: [
-        if(dsp.isLoadingSongs)
-        Container(
-          height: 30,
-          width: double.maxFinite,
-          color: Colors.tealAccent.withOpacity(0.7),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              capText('Loading...'),
-              cusWidth10(),
-              const SizedBox(
-                height: 15,
-                width: 15,
-                child: CircularProgressIndicator(strokeWidth: 2,color: Colors.pink),
-              ),
-            ],
+        if (dsp.isLoadingSongs)
+          Container(
+            height: 30,
+            width: double.maxFinite,
+            color: Colors.tealAccent.withOpacity(0.7),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                capText('Loading...'),
+                cusWidth10(),
+                const SizedBox(
+                  height: 15,
+                  width: 15,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.pink),
+                ),
+              ],
+            ),
           ),
-        ),
         Container(
           height: 70,
           width: double.maxFinite,
@@ -206,6 +216,35 @@ class _MyFilesState extends State<MyFiles> {
           // padding: EdgeInsets.all(5),
           onPressed: () {
             HapticFeedback.vibrate();
+            ap.playList.clear();
+            ap.playList.addAll(
+                  dsp.deviceSongs
+                      .map(
+                        (e) => AudioSource.file(
+                          e.data,
+                          tag: MediaItem(
+                            id: e.data,
+                            title: e.title,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                );
+            ap.bottomSheetOpen=true;
+            Get.bottomSheet(
+              BottomSheet(
+                onClosing: () {
+                 ap.bottomSheetOpen=false;
+                 setState(() {
+                 });
+                 print('ap,bottomsheet ${ap.bottomSheetOpen}');
+                },
+                enableDrag: false,
+                builder: (context) {
+                  return const AudioPlayerWidget();
+                },
+              ),
+            );
           },
           child: Row(
             children: [
@@ -228,6 +267,22 @@ class _MyFilesState extends State<MyFiles> {
           return ListTile(
             onTap: () async {
               HapticFeedback.vibrate();
+
+              // Get.to(AudioPlayerWidget(song: music));
+              ap.bottomSheetOpen=true;
+              Get.bottomSheet(
+                BottomSheet(
+                  onClosing: () {
+                    ap.bottomSheetOpen=false;
+                    setState(() {
+                    });
+                  },
+                  enableDrag: false,
+                  builder: (context) {
+                    return AudioPlayerWidget(song: music);
+                  },
+                ),
+              );
             },
             title: b1Text(music.title, maxLine: 1, fontWeight: FontWeight.bold),
             subtitle: Row(
@@ -259,7 +314,7 @@ class _MyFilesState extends State<MyFiles> {
               ),
             ),
           );
-        })
+        }),
       ],
     );
   }
@@ -267,7 +322,7 @@ class _MyFilesState extends State<MyFiles> {
   ListView buildDownloadTab(DashboardProvider dsp) {
     return ListView(
       children: [
-        if(dsp.isLoadingVideos)
+        if (dsp.isLoadingVideos)
           Container(
             height: 30,
             width: double.maxFinite,
@@ -280,7 +335,8 @@ class _MyFilesState extends State<MyFiles> {
                 const SizedBox(
                   height: 15,
                   width: 15,
-                  child: CircularProgressIndicator(strokeWidth: 2,color: Colors.pink),
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.pink),
                 ),
               ],
             ),

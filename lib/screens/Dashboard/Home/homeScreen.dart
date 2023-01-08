@@ -1,3 +1,5 @@
+import 'package:altra_tube/providers/AudioProvider/AudioProvider.dart';
+import 'package:altra_tube/screens/Dashboard/AudioPlayer/AudioPlayerWidget.dart';
 import 'package:altra_tube/widgets/constWidgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -28,43 +30,45 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     var dsp = Provider.of<DashboardProvider>(context, listen: false);
-
     dsp.onRefresh();
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(builder: (context, dsp, _) {
-      return Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              buildDashboardSearchWidget(context),
-              Expanded(
-                  child: DefaultTabController(
-                initialIndex: 1,
-                length: 5,
-                child: Column(
-                  children: [
-                    buildTabBar(),
-                    Expanded(
-                      child: TabBarView(
-                        children: [
-                          buildSubTab(),
-                          buildForYouTab(dsp, context),
-                          buildMusicTab(context, dsp),
-                          buildTrendingTab(dsp, context),
-                          buildChannelsTab(dsp, context),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ))
-            ],
+      return Consumer<AudioProvider>(builder: (context, ap, _) {
+        return Scaffold(
+          body: SafeArea(
+            child: Column(
+              children: [
+                buildDashboardSearchWidget(context),
+                Expanded(
+                    child: DefaultTabController(
+                  initialIndex: 1,
+                  length: 5,
+                  child: Column(
+                    children: [
+                      buildTabBar(),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            buildSubTab(),
+                            buildForYouTab(dsp, context),
+                            buildMusicTab(context, dsp),
+                            buildTrendingTab(dsp, context),
+                            buildChannelsTab(dsp, context),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ))
+              ],
+            ),
           ),
-        ),
-      );
+
+        );
+      });
     });
   }
 

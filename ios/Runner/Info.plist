@@ -49,5 +49,9 @@
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
     <string>This package query songs to get songs of device</string>
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>audio</string>
+    </array>
 </dict>
 </plist>

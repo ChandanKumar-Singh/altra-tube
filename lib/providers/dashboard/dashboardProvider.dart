@@ -63,9 +63,9 @@ class DashboardProvider extends ChangeNotifier {
   YoutubeDataApi youtubeDataApi = YoutubeDataApi();
 
   List<Video> ytForYouVideos = [];
-  List<Video> trendingMusicVideos =[];
-  List<Video> trendingGamingVideos =[];
-  List<Video> trendingMoviesVideos =[];
+  List<Video> trendingMusicVideos = [];
+  List<Video> trendingGamingVideos = [];
+  List<Video> trendingMoviesVideos = [];
   List<Video> ytTrendingVideos = [];
   List<VideoModel> ytTrendingVideos2 = [];
   Future<void> getChannelInfo() async {
@@ -90,11 +90,9 @@ class DashboardProvider extends ChangeNotifier {
   }
 
   Future<void> getForYouVideos() async {
-     trendingMusicVideos = await youtubeDataApi.fetchTrendingMusic();
-     trendingGamingVideos =
-        await youtubeDataApi.fetchTrendingGaming();
-     trendingMoviesVideos =
-        await youtubeDataApi.fetchTrendingMovies();
+    trendingMusicVideos = await youtubeDataApi.fetchTrendingMusic();
+    trendingGamingVideos = await youtubeDataApi.fetchTrendingGaming();
+    trendingMoviesVideos = await youtubeDataApi.fetchTrendingMovies();
     ytForYouVideos.clear();
     ytForYouVideos.addAll([
       ...trendingGamingVideos,
@@ -103,7 +101,6 @@ class DashboardProvider extends ChangeNotifier {
     ]);
     ytForYouVideos.shuffle();
     debugPrint('$tag getForYouVideos ${ytForYouVideos.length}');
-
   }
 
   Future<void> getTrendingVideos() async {
@@ -1569,15 +1566,14 @@ class DashboardProvider extends ChangeNotifier {
     ],
   };
 
-  Future<void> onRefresh()async{
-   await getForYouVideos();
-   await getTrendingVideos();
+  Future<void> onRefresh() async {
+    getForYouVideos();
+    getTrendingVideos();
     //await getChannelInfo();
-   await getPaths();
-   await getDeviceSongs();
-   await getDeviceVideos();
+    // await getPaths();
+    getDeviceSongs();
+    await getDeviceVideos();
   }
-
 
   ///TODO:MyFiles Tab
   Map<String, List<dynamic>> downloadedList = {
@@ -1814,44 +1810,44 @@ class DashboardProvider extends ChangeNotifier {
   List<dynamic> deviceVideos = [];
   List<AssetEntity> deviceVideos2 = [];
   List<DeviceVideoModel> deviceVideos3 = [];
-  Future<void> getPaths() async {
-    var granted =
-        await PermissionServices().getPermission(Permission.mediaLibrary);
-    if (granted) {
-      isLoadingVideos = true;
-      notifyListeners();
-      paths = await PhotoManager.getAssetPathList();
-      deviceVideos2.clear();
-      deviceVideos3.clear();
-      for (var e in paths) {
-        final List<AssetEntity> entities =
-            await e.getAssetListPaged(page: 0, size: 80);
-        notifyListeners();
-        if (entities.any((ele) => ele.type == AssetType.video)) {
-          List<AssetEntity> list = [];
-          list.addAll(
-              entities.where((element) => element.type == AssetType.video));
-          deviceVideos2.addAll(list);
-        }
-      }
-      debugPrint('$tag deviceVideos2 ${deviceVideos2.length}');
-      notifyListeners();
-      for (var element in deviceVideos2) {
-        var deviceVideoModel = DeviceVideoModel(
-            id: element.id,
-            title: element.title,
-            duration: element.duration,
-            size: element.size,
-            thumnail: await getThumbnail(element),
-            path: element.relativePath,
-            file: await getFile(element));
-        deviceVideos3.add(deviceVideoModel);
-      }
-      debugPrint('$tag deviceVideos3 ${deviceVideos3.length}');
-      isLoadingVideos = false;
-      notifyListeners();
-    }
-  }
+  // Future<void> getPaths() async {
+  //   var granted =
+  //       await PermissionServices().getPermission(Permission.mediaLibrary);
+  //   if (granted) {
+  //     isLoadingVideos = true;
+  //     notifyListeners();
+  //     paths = await PhotoManager.getAssetPathList();
+  //     deviceVideos2.clear();
+  //     deviceVideos3.clear();
+  //     for (var e in paths) {
+  //       final List<AssetEntity> entities =
+  //           await e.getAssetListPaged(page: 0, size: 80);
+  //       notifyListeners();
+  //       if (entities.any((ele) => ele.type == AssetType.video)) {
+  //         List<AssetEntity> list = [];
+  //         list.addAll(
+  //             entities.where((element) => element.type == AssetType.video));
+  //         deviceVideos2.addAll(list);
+  //       }
+  //     }
+  //     debugPrint('$tag deviceVideos2 ${deviceVideos2.length}');
+  //     notifyListeners();
+  //     for (var element in deviceVideos2) {
+  //       var deviceVideoModel = DeviceVideoModel(
+  //           id: element.id,
+  //           title: element.title,
+  //           duration: element.duration,
+  //           size: element.size,
+  //           thumnail: await getThumbnail(element),
+  //           path: element.relativePath,
+  //           file: await getFile(element));
+  //       deviceVideos3.add(deviceVideoModel);
+  //     }
+  //     debugPrint('$tag deviceVideos3 ${deviceVideos3.length}');
+  //     isLoadingVideos = false;
+  //     notifyListeners();
+  //   }
+  // }
 
   List<ToolCenterModel> tools = [
     ToolCenterModel(
